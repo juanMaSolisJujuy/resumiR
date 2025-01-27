@@ -1,7 +1,7 @@
 Package: resumiR
 Type: Package
 Title: Medidas De Resumen Univariadas y Tablas De Frecuencias Para Datos Numéricos Discretos o Continuos
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: 
     c(person(given = "Juan Manuel",
              family = "Solís",
