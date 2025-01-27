@@ -6,8 +6,8 @@
 
 El objetivo de resumiR es su aplicación didáctica para un curso
 introductorio de Bioestadística utilizando el software R, para las
-carreras de grado las carreras de grado y otras ofertas educativas de la
-Faculad de Ciencias Agrarias de la UNJu.
+carreras de grado y otras ofertas educativas de la Faculad de Ciencias
+Agrarias de la UNJu.
 
 El paquete permite obtener rápidamente una serie de medidas de resumen y
 gráficos para datos numéricos discretos o continuos en series simples.

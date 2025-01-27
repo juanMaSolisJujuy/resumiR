@@ -21,6 +21,12 @@ utils::globalVariables("count")
 #' @param clipboard lógico; si es verdadero (TRUE), exporta los resultados con el portapapeles; por defecto es FALSE
 #' @param boxplot lógico; si es verdadero (TRUE), devuelve el gráfico de cajas de la serie; hereda propiedades de ggplot; por defecto es FALSE.
 #' @param ... argumentos que heredan de la función boxplot()
+#' @returns cuando el argumento imprimir = TRUE, imprime en la consola una serie de medidas de resumen para series simples; si el argumento imprimir=FALSE, devuelve una lista; si el argumento boxplot=TRUE, devuelve un gráfico de cajas que hereda propiedades de ggplot().
+#' @examples
+#' library(resumiR)
+#' # Ejemplo
+#' x = iris[[1]]
+#' s_simple(x, decimales = 2, recorte = 0.05, boxplot = TRUE, clipboard = TRUE)
 #' @export
 
 s_simple = function(
@@ -197,6 +203,13 @@ s_simple = function(
 #' @param frec texto indicando tipo de frecuencia a utilizar en caso de realizar un gráfico; los valores posibles son "absoluta" y "relativa"; por defecto es "absoluta".
 #' @param pf lógico; si es verdadero (TRUE), devuelve el polígono de frecuencias en lugar del histograma de frecuencias, cuando x es continua; por defecto es FALSE.
 #' @param ... argumentos que heredan de la función ggplot()
+#' @returns cuando el argumento imprimir = T, imprime una tabla de frecuencias para datos continuos o discretos; cuando el argumento gráfico es "fs" o "fa" devuelve el gráfico de frecuencias simples y acumulados respeectivamente, adecuados para cada tipo de variable; cuando el argumento imprimir=FALSE, devuelve una lista.
+#' @examples
+#' library(resumiR)
+#' x = iris[[1]]
+#' s_agrupada(x, li=4, ls=8, a=1, clipboard=TRUE, grafico="fs")
+#' s_agrupada(x, imprimir=FALSE, grafico="fs",pf=TRUE)
+#' s_agrupada(x, grafico="fa")
 #' @export
 
 

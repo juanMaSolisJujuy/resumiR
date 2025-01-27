@@ -44,7 +44,17 @@ s_agrupada(
 
 \item{...}{argumentos que heredan de la función ggplot()}
 }
+\value{
+cuando el argumento imprimir = T, imprime una tabla de frecuencias para datos continuos o discretos; cuando el argumento gráfico es "fs" o "fa" devuelve el gráfico de frecuencias simples y acumulados respeectivamente, adecuados para cada tipo de variable; cuando el argumento imprimir=FALSE, devuelve una lista.
+}
 \description{
 Devuelve la tabla de frecuencias de una serie de datos numérica, univariada, de tipo *integer* o *numeric*. En el caso de datos de tipo *numeric*, es posible especificar los límites y la amplitud de los intervalos de clase. Por defecto, construye los intervalos de clase cerrados por derecha, con la regla de Sturges.
 Si se desea, es posible exportar los resultados en el portapapeles.
+}
+\examples{
+library(resumiR)
+x = iris[[1]]
+s_agrupada(x, li=4, ls=8, a=1, clipboard=TRUE, grafico="fs")
+s_agrupada(x, imprimir=FALSE, grafico="fs",pf=TRUE)
+s_agrupada(x, grafico="fa")
 }

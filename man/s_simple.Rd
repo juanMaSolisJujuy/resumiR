@@ -32,6 +32,15 @@ s_simple(
 
 \item{...}{argumentos que heredan de la función boxplot()}
 }
+\value{
+cuando el argumento imprimir = TRUE, imprime en la consola una serie de medidas de resumen para series simples; si el argumento imprimir=FALSE, devuelve una lista; si el argumento boxplot=TRUE, devuelve un gráfico de cajas que hereda propiedades de ggplot().
+}
 \description{
 Devuelve medidas de resumen univariadas de los datos numéricos ingresados, discretos o continuos, como series simples. Permite exportar los resultados en el "portapapeles", y graficar la serie por medio de un gráfico de cajas y bigotes.
+}
+\examples{
+library(resumiR)
+# Ejemplo
+x = iris[[1]]
+s_simple(x, decimales = 2, recorte = 0.05, boxplot = TRUE, clipboard = TRUE)
 }

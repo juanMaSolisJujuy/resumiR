@@ -1,8 +1,12 @@
 Package: resumiR
 Type: Package
-Title: Medidas de resumen univariadas y Tablas de Frecuencias para datos numéricos discretos o continuos
+Title: Medidas De Resumen Univariadas y Tablas De Frecuencias Para Datos Numéricos Discretos o Continuos
 Version: 0.1.0
-Author: Juan Manuel Solís
+Authors@R: 
+    c(person(given = "Juan Manuel",
+             family = "Solís",
+             role = c("aut", "cre", "cph"),
+             email = "juanmasolis@fca.unju.edu.ar"))
 Maintainer: Juan Manuel Solís <juanmasolis@fca.unju.edu.ar>
 Description: El paquete permite obtener rápidamente una serie de medidas de resumen y gráficos para datos numéricos discretos o continuos en series simples.
       También permite obtener tablas de frecuencia clásicas y gráficos cuando se desea realizar un análisis de series agrupadas.
