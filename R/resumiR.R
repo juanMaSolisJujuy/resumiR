@@ -156,11 +156,22 @@ s_simple = function(
       }
 
       if (clipboard){
-        data.frame(
-          Medida = names(c(n0, n, resumen)),
-          x = c(n0, n, resumen)
-        )|>
-          write.table("clipboard", row.names = FALSE, dec = ",")
+
+        if (Sys.info()["sysname"] == "Linux") {
+          data.frame(
+            Medida = names(c(n0, n, resumen)),
+            x = c(n0, n, resumen)
+          )|>
+            write.table(pipe("xclip -selection clipboard"), sep = "\t", row.names = FALSE)
+        } else {
+          data.frame(
+            Medida = names(c(n0, n, resumen)),
+            x = c(n0, n, resumen)
+          )|>
+            write.table("clipboard", row.names = FALSE, dec = ",")
+        }
+
+
       }
 
       if (boxplot == TRUE){
@@ -532,8 +543,15 @@ s_agrupada = function(x,
     }
 
     if (clipboard){
-      tf|>
-        write.table("clipboard", row.names = FALSE, dec = ",")
+              if (Sys.info()["sysname"] == "Linux") {
+                tf|>
+                  write.table(pipe("xclip -selection clipboard"), sep = "\t", row.names = FALSE)
+        } else {
+          tf|>
+            write.table("clipboard", row.names = FALSE, dec = ",", sep = "\t")
+      }
+
+
     }
   }
 }
