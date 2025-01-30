@@ -9,8 +9,6 @@ s_simple(
   decimales = 1,
   recorte = 0.1,
   percentiles = c(0.25, 0.5, 0.75),
-  imprimir = TRUE,
-  clipboard = FALSE,
   boxplot = FALSE,
   ...
 )
@@ -24,23 +22,19 @@ s_simple(
 
 \item{percentiles}{vector numérico de probabilidades acumuladas para el cálculo de percentiles; por defecto \{0.25, 0.5, 0.75\}}
 
-\item{imprimir}{lógico; si es verdadero (TRUE), imprime los resultados en la pantalla de la consola; si es falso (FALSE), devuelve una lista de objetos; por defecto es TRUE.}
-
-\item{clipboard}{lógico; si es verdadero (TRUE), exporta los resultados con el portapapeles; por defecto es FALSE}
-
 \item{boxplot}{lógico; si es verdadero (TRUE), devuelve el gráfico de cajas de la serie; hereda propiedades de ggplot; por defecto es FALSE.}
 
 \item{...}{argumentos que heredan de la función boxplot()}
 }
 \value{
-cuando el argumento imprimir = TRUE, imprime en la consola una serie de medidas de resumen para series simples; si el argumento imprimir=FALSE, devuelve una lista; si el argumento boxplot=TRUE, devuelve un gráfico de cajas que hereda propiedades de ggplot().
+devuelve un objeto de tipo tibble con una serie de medidas de resumen; si el argumento boxplot=TRUE, devuelve un gráfico de cajas que hereda propiedades de ggplot().
 }
 \description{
-Devuelve medidas de resumen univariadas de los datos numéricos ingresados, discretos o continuos, como series simples. Permite exportar los resultados en el "portapapeles", y graficar la serie por medio de un gráfico de cajas y bigotes.
+Devuelve medidas de resumen univariadas de los datos numéricos ingresados, discretos o continuos, como series simples. Permite graficar la serie por medio de un gráfico de cajas y bigotes.
 }
 \examples{
 library(resumiR)
 # Ejemplo
 x = iris[[1]]
-s_simple(x, decimales = 2, recorte = 0.05, boxplot = TRUE, clipboard = TRUE)
+s_simple(x, decimales = 2, recorte = 0.05, boxplot = TRUE)
 }

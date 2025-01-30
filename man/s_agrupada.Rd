@@ -2,7 +2,7 @@
 % Please edit documentation in R/resumiR.R
 \name{s_agrupada}
 \alias{s_agrupada}
-\title{Medidas de resumen univariadas y Tablas de Frecuencias para datos numéricos discretos o continuos}
+\title{Tablas de Frecuencias y Gráficos para Datos Numéricos}
 \usage{
 s_agrupada(
   x,
@@ -11,8 +11,6 @@ s_agrupada(
   ls = NULL,
   a = NULL,
   derecha = TRUE,
-  imprimir = TRUE,
-  clipboard = FALSE,
   grafico = "ninguno",
   frec = "relativa",
   pf = FALSE,
@@ -32,10 +30,6 @@ s_agrupada(
 
 \item{derecha}{si los intervalos de clase son cerrados por derecha, para datos de tipo *numeric*.}
 
-\item{imprimir}{lógico; si es verdadero (TRUE), imprime los resultados en la pantalla de la consola; si es falso (FALSE), devuelve un data.frame; por defecto es TRUE.}
-
-\item{clipboard}{lógico; es es verdadero (TRUE), exporta los resultados con el portapapeles; por defecto es FALSE}
-
 \item{grafico}{texto indicando el tipo de gráfico a realizar: frecuencias simples, acumuladas o ambas; los valores posibles son "ninguno", "fs" y "fa"; por defecto es "ninguno"; hereda propiedades de ggplot()}
 
 \item{frec}{texto indicando tipo de frecuencia a utilizar en caso de realizar un gráfico; los valores posibles son "absoluta" y "relativa"; por defecto es "absoluta".}
@@ -45,16 +39,15 @@ s_agrupada(
 \item{...}{argumentos que heredan de la función ggplot()}
 }
 \value{
-cuando el argumento imprimir = T, imprime una tabla de frecuencias para datos continuos o discretos; cuando el argumento gráfico es "fs" o "fa" devuelve el gráfico de frecuencias simples y acumulados respeectivamente, adecuados para cada tipo de variable; cuando el argumento imprimir=FALSE, devuelve una lista.
+Devuelve una tabla de frecuencias para datos continuos o discretos; cuando el argumento gráfico es "fs" o "fa" devuelve el gráfico de frecuencias simples y acumulados respeectivamente, adecuados para cada tipo de variable
 }
 \description{
-Devuelve la tabla de frecuencias de una serie de datos numérica, univariada, de tipo *integer* o *numeric*. En el caso de datos de tipo *numeric*, es posible especificar los límites y la amplitud de los intervalos de clase. Por defecto, construye los intervalos de clase cerrados por derecha, con la regla de Sturges.
-Si se desea, es posible exportar los resultados en el portapapeles.
+Devuelve la tabla de frecuencias de una serie univariada de datos numéricos enteros o continuos. En el caso de datos de tipo continuo, es posible especificar los límites y la amplitud de los intervalos de clase. Por defecto, construye los intervalos de clase cerrados por derecha, con la regla de Sturges.
 }
 \examples{
 library(resumiR)
 x = iris[[1]]
-s_agrupada(x, li=4, ls=8, a=1, clipboard=TRUE, grafico="fs")
-s_agrupada(x, imprimir=FALSE, grafico="fs",pf=TRUE)
+s_agrupada(x, li=4, ls=8, a=1, grafico="fs")
+s_agrupada(x, grafico="fs", pf=TRUE)
 s_agrupada(x, grafico="fa")
 }

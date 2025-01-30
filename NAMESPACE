@@ -3,6 +3,7 @@
 export(s_agrupada)
 export(s_simple)
 import(ggplot2)
+import(tibble)
 importFrom(grDevices,boxplot.stats)
 importFrom(stats,quantile)
 importFrom(stats,sd)

@@ -2,6 +2,7 @@
 #' @importFrom stats quantile var sd setNames
 #' @importFrom grDevices boxplot.stats
 #' @importFrom utils write.table
+#' @import tibble
 #' @import ggplot2
 
 # GlobalVariables function
@@ -12,21 +13,19 @@ utils::globalVariables("count")
 #' @aliases s_simple
 #' @title Medidas de resumen univariadas en series numéricas simples
 #' @description
-#' Devuelve medidas de resumen univariadas de los datos numéricos ingresados, discretos o continuos, como series simples. Permite exportar los resultados en el "portapapeles", y graficar la serie por medio de un gráfico de cajas y bigotes.
+#' Devuelve medidas de resumen univariadas de los datos numéricos ingresados, discretos o continuos, como series simples. Permite graficar la serie por medio de un gráfico de cajas y bigotes.
 #' @param x vector numérico de tipo *integer* o *numeric* (puede incluir NA's o valores infinitos).
 #' @param decimales el número de posiciones decimales de los resultados; por defecto es 1.
 #' @param recorte proporción de recorte unilateral de la serie ordenada para la estimación de la media recortada; el máximo valor admitido es 0.25;  por defecto 0.1.
 #' @param percentiles vector numérico de probabilidades acumuladas para el cálculo de percentiles; por defecto \{0.25, 0.5, 0.75\}
-#' @param imprimir lógico; si es verdadero (TRUE), imprime los resultados en la pantalla de la consola; si es falso (FALSE), devuelve una lista de objetos; por defecto es TRUE.
-#' @param clipboard lógico; si es verdadero (TRUE), exporta los resultados con el portapapeles; por defecto es FALSE
 #' @param boxplot lógico; si es verdadero (TRUE), devuelve el gráfico de cajas de la serie; hereda propiedades de ggplot; por defecto es FALSE.
 #' @param ... argumentos que heredan de la función boxplot()
-#' @returns cuando el argumento imprimir = TRUE, imprime en la consola una serie de medidas de resumen para series simples; si el argumento imprimir=FALSE, devuelve una lista; si el argumento boxplot=TRUE, devuelve un gráfico de cajas que hereda propiedades de ggplot().
+#' @returns devuelve un objeto de tipo tibble con una serie de medidas de resumen; si el argumento boxplot=TRUE, devuelve un gráfico de cajas que hereda propiedades de ggplot().
 #' @examples
 #' library(resumiR)
 #' # Ejemplo
 #' x = iris[[1]]
-#' s_simple(x, decimales = 2, recorte = 0.05, boxplot = TRUE, clipboard = TRUE)
+#' s_simple(x, decimales = 2, recorte = 0.05, boxplot = TRUE)
 #' @export
 
 s_simple = function(
@@ -34,14 +33,13 @@ s_simple = function(
     decimales = 1,
     recorte = 0.1,
     percentiles = c(0.25, 0.5, 0.75),
-    imprimir = TRUE,
-    clipboard = FALSE,
     boxplot = FALSE,
     ...
     ){
   if (!is.numeric(x)){
-    cat("Debes ingresar un vector num\u00e9rico.")
+    stop("Debes ingresar un vector num\u00e9rico.")
   } else {
+
     omitidos = (length(x[is.na(x)]))|>
       setNames("Omitidos")
     infinitos = length(x[is.infinite(x)])|>
@@ -54,7 +52,8 @@ s_simple = function(
         class(x) == "integer",
         "V.a. cuantitativa discreta",
         "V.a. cuantitativa continua"
-      )
+      ) |>
+        setNames("Tipo de variable")
       mm = mean(x)|>
         setNames("Media")
       recorte = ifelse(
@@ -89,93 +88,48 @@ s_simple = function(
         setNames("n")
       ee = sd(x) / sqrt(n)|>
         setNames("ee")
-      Atipicos = (ifelse(
-        (length(boxplot.stats(x, coef = 1.5)$out) == 0),
-        0,
-        list(boxplot.stats(x, coef = 1.5)$out)
-      ))|>
-        setNames("Atipicos") |>
-        unlist()
-      Extremos = (ifelse(
-        (length(boxplot.stats(x, coef = 3)$out) == 0),
-        0,
-        list(boxplot.stats(x, coef = 3)$out)
-      ))|>
-        setNames("Extremos")|>
-        unlist()
-      sn = sqrt(varianza * (n-1) / n)
+      Atipicos = length(boxplot.stats(x, coef = 1.5)$out) |>
+        setNames("Atipicos")
+      Extremos = length(boxplot.stats(x, coef = 3)$out) |>
+        setNames("Extremos")
+      sn = sqrt(varianza * (n-1) / n) |>
+        setNames("Desviaci\u00f3n t\u00edpica no corregida")
       momento3 = mean((x - mm)^3)
       momento4 = mean((x - mm)^4)
       sesgo = momento3 / (sn^3)|>
         setNames("Asimetr\u00eda (momentos)")
       curtosis = momento4 / (sn^4)|>
         setNames("Curtosis (momentos)")
-      resumen = c(mm,
-                  mmtrim,
-                  min,
-                  max,
-                  cuantiles,
-                  varianza,
-                  s,
-                  cv,
-                  ee,
-                  r,
-                  ri,
-                  sesgo,
-                  curtosis)|>
-        round(decimales)
-
-      if (imprimir){
-        cat("\n--------------------------------------------")
-        cat("\n===")
-        cat(" Medidas de resumen - Serie Simple ")
-        cat("===")
-        cat("\n--------------------------------------------")
-        cat("\n", tipo)
-        cat("\n n0: ", n0)
-        cat("\n n: ", n)
-        cat("\n Valores faltantes (NA): ", omitidos)
-        cat("\n Valores \U221E: ", infinitos)
-        sapply(1:length(resumen),function(i){
-          cat("\n",names(resumen[i]),": ",resumen[i])
-        })
-        cat("\n Valor/es at\u00edpico/s (1,5 x RI): ", Atipicos)
-        cat("\n Valor/es extremo/s (3 x RI): ", Extremos )
-        cat("\n--------------------------------------------")
-        cat("\n")
-      } else {
-        return(list(
-          n0,
-          n,
-          omitidos,
-          infinitos,
-          resumen,
-          Atipicos,
-          Extremos
-        ))
-      }
-
-      if (clipboard){
-
-        if (Sys.info()["sysname"] == "Linux") {
-          data.frame(
-            Medida = names(c(n0, n, resumen)),
-            x = c(n0, n, resumen)
-          )|>
-            write.table(pipe("xclip -selection clipboard"), sep = "\t", row.names = FALSE)
-        } else {
-          data.frame(
-            Medida = names(c(n0, n, resumen)),
-            x = c(n0, n, resumen)
-          )|>
-            write.table("clipboard", row.names = FALSE, dec = ",")
-        }
-
-
-      }
+      Medidas = data.frame(
+        Valor =    c(n0,
+                     n,
+                     omitidos,
+                     infinitos,
+                     c(mm,
+                       mmtrim,
+                       min,
+                       max,
+                       cuantiles,
+                       varianza,
+                       s,
+                       cv,
+                       ee,
+                       r,
+                       ri,
+                       sesgo,
+                       curtosis)|>round(decimales),
+                     Atipicos,
+                     Extremos
+        )
+      ) |>
+        tibble::rownames_to_column(
+          "Medida"
+        ) |>
+        tibble::as_tibble()
 
       if (boxplot == TRUE){
-       graf = x|>
+
+      bxplt = x|>
           as.data.frame()|>
           ggplot(aes(y=x),...) +
           geom_boxplot(
@@ -187,10 +141,14 @@ s_simple = function(
              title = "Grafico de cajas y bigotes"
           ) +
           theme_minimal()
-       return(graf)
+      return(
+        list(Medidas = Medidas, Boxplot = bxplt)
+      )
+      } else {
+        return(Medidas = Medidas)
       }
     } else {
-      cat("Ingresa un vector num\u00e9rico con m\u00e1s de un elemento")
+      stop("Ingresa un vector num\u00e9rico con m\u00e1s de un elemento")
     }
   }
 }
@@ -198,28 +156,25 @@ s_simple = function(
 
 #' @name s_agrupada
 #' @aliases s_agrupada
-#' @title Medidas de resumen univariadas y Tablas de Frecuencias para datos numéricos discretos o continuos
+#' @title Tablas de Frecuencias y Gráficos para Datos Numéricos
 #' @description
-#' Devuelve la tabla de frecuencias de una serie de datos numérica, univariada, de tipo *integer* o *numeric*. En el caso de datos de tipo *numeric*, es posible especificar los límites y la amplitud de los intervalos de clase. Por defecto, construye los intervalos de clase cerrados por derecha, con la regla de Sturges.
-#' Si se desea, es posible exportar los resultados en el portapapeles.
+#' Devuelve la tabla de frecuencias de una serie univariada de datos numéricos enteros o continuos. En el caso de datos de tipo continuo, es posible especificar los límites y la amplitud de los intervalos de clase. Por defecto, construye los intervalos de clase cerrados por derecha, con la regla de Sturges.
 #' @param x vector numérico de tipo *integer* o *numeric*; en este último caso, el vector debe tener una longitud mayor a 1, y permitir el cálculo de medidas de variabilidad.
 #' @param li límite inferior del primer intervalo de clase, para datos de tipo *numeric*.
 #' @param ls límite superior del intervalo de clase superior, para datos de tipo *numeric*.
 #' @param a amplitud del intervalo de clase, para datos de tipo *numeric*.
 #' @param derecha si los intervalos de clase son cerrados por derecha, para datos de tipo *numeric*.
 #' @param decimales el número de posiciones decimales de los resultados.
-#' @param imprimir lógico; si es verdadero (TRUE), imprime los resultados en la pantalla de la consola; si es falso (FALSE), devuelve un data.frame; por defecto es TRUE.
-#' @param clipboard lógico; es es verdadero (TRUE), exporta los resultados con el portapapeles; por defecto es FALSE
 #' @param grafico texto indicando el tipo de gráfico a realizar: frecuencias simples, acumuladas o ambas; los valores posibles son "ninguno", "fs" y "fa"; por defecto es "ninguno"; hereda propiedades de ggplot()
 #' @param frec texto indicando tipo de frecuencia a utilizar en caso de realizar un gráfico; los valores posibles son "absoluta" y "relativa"; por defecto es "absoluta".
 #' @param pf lógico; si es verdadero (TRUE), devuelve el polígono de frecuencias en lugar del histograma de frecuencias, cuando x es continua; por defecto es FALSE.
 #' @param ... argumentos que heredan de la función ggplot()
-#' @returns cuando el argumento imprimir = T, imprime una tabla de frecuencias para datos continuos o discretos; cuando el argumento gráfico es "fs" o "fa" devuelve el gráfico de frecuencias simples y acumulados respeectivamente, adecuados para cada tipo de variable; cuando el argumento imprimir=FALSE, devuelve una lista.
+#' @returns Devuelve una tabla de frecuencias para datos continuos o discretos; cuando el argumento gráfico es "fs" o "fa" devuelve el gráfico de frecuencias simples y acumulados respeectivamente, adecuados para cada tipo de variable
 #' @examples
 #' library(resumiR)
 #' x = iris[[1]]
-#' s_agrupada(x, li=4, ls=8, a=1, clipboard=TRUE, grafico="fs")
-#' s_agrupada(x, imprimir=FALSE, grafico="fs",pf=TRUE)
+#' s_agrupada(x, li=4, ls=8, a=1, grafico="fs")
+#' s_agrupada(x, grafico="fs", pf=TRUE)
 #' s_agrupada(x, grafico="fa")
 #' @export
 
@@ -230,8 +185,6 @@ s_agrupada = function(x,
                       ls = NULL,
                       a = NULL,
                       derecha = TRUE,
-                      imprimir = TRUE,
-                      clipboard = FALSE,
                       grafico = "ninguno",
                       frec = "relativa",
                       pf = FALSE,
@@ -375,7 +328,7 @@ s_agrupada = function(x,
        breaks = x
      ) +
      labs(
-       title = "Gr\U00E1fico de bastones",
+       title = "Grafico de bastones",
        x = "X",
        y = "f(X)"
      ) +
@@ -439,7 +392,7 @@ s_agrupada = function(x,
         breaks = c(min(x) - 1, x, max(x) + 1)
       ) +
       labs(
-        title = "Gr\U00E1fico escalonado",
+        title = "Grafico escalonado",
         x = "X",
         y = "f(X)"
       ) +
@@ -447,8 +400,11 @@ s_agrupada = function(x,
 
   }
 
+  # Tabla de frecuencias #
+
+
   if (!is.numeric(x)){
-    cat("Debes ingresar un vector num\u00e9rico")
+    stop("Debes ingresar un vector num\u00e9rico")
   } else {
     n0 = length(x) |>
       setNames("n0")
@@ -468,7 +424,7 @@ s_agrupada = function(x,
         tf = tff(x, tipo = 1)
     } else {
       if ((length(x)<2)|(length(unique(x))<=1)){
-        cat("Ingrese un vector num\u00e9rico que permita la agrupaci\u00f3n en intervalos de clase.")
+        stop("Ingrese un vector num\u00e9rico que permita la agrupaci\u00f3n en intervalos de clase.")
       }else{
         if ((!is.null(li)) && (!is.null(ls)) && (!is.null(a))){
           limites = seq(li, ls, a)
@@ -484,74 +440,58 @@ s_agrupada = function(x,
       }
     }
 
+    if ((is.numeric(x)) && !(is.integer(x))){
+      tf$Clase = gsub(",", " - ", tf$Clase)
+      tf$Clase = gsub("\\.", ",", tf$Clase)
+    }
+
     # Salidas #
 
     options(scipen = 0)
+    tf = tibble::as_tibble(tf)
 
-    if (imprimir){
-      cat("\n-----------------------------------------------")
-      cat("\n===")
-      cat(" Tabla de frecuencias - Serie Agrupada ")
-      cat("===")
-      cat("\n-----------------------------------------------")
-      cat("\n", tipo)
-      cat("\n n0: ", n0)
-      cat("\n n: ", n)
-      cat("\n Valores faltantes (NA): ", omitidos)
-      cat("\n Valores \U221E: ", infinitos)
-      cat("\n")
-      if ((is.numeric(x)) && !(is.integer(x))){
-        tf$Clase = gsub(",", " - ", tf$Clase)
-        tf$Clase = gsub("\\.", ",", tf$Clase)
-      }
-      print(tf, print.gap = 2)
-      cat("\n")
-    } else {
+    if (!(grafico %in% c("fs", "fa"))) {
       return(list(
-        n,
-        omitidos,
-        infinitos,
-        tf
+        `Tabla de frecuencias` = tf,
+        `Tipo de variable` = tipo,
+        n0 = n0,
+        n = n,
+        Omitidos = omitidos,
+        Infinitos = infinitos
       ))
-    }
-
-    # Gráficos #
-
-    if (grafico %in% c("fs", "fa", "fsya") &&
-        (!(frec %in% c("absoluta", "relativa")))) {
-      frec = "relativa"
-    }
-
-    if (is.numeric(x) && (!is.integer(x)) && (grafico == "fs")){
-      graf = ghist(x, limites, frec, pf)
-      return(graf)
     } else {
-      if (is.numeric(x) && (!is.integer(x)) && grafico == "fa") {
-        graf = gojiva(limites, frec, tf)
-        return(graf)
+      # Gráficos #
+
+      if (grafico %in% c("fs", "fa") &&
+          (!(frec %in% c("absoluta", "relativa")))) {
+        frec = "relativa"
+      }
+
+      if (is.numeric(x) && (!is.integer(x)) && (grafico == "fs")){
+        graf = ghist(x, limites, frec, pf)
       } else {
-        if (is.integer(x) && grafico == "fs"){
-          graf = gbaston(tf, frec)
-          return(graf)
+        if (is.numeric(x) && (!is.integer(x)) && grafico == "fa") {
+          graf = gojiva(limites, frec, tf)
         } else {
-          if (is.integer(x) && grafico == "fa") {
-            graf = gstep(tf, frec)
-            return(graf)
+          if (is.integer(x) && grafico == "fs"){
+            graf = gbaston(tf, frec)
+          } else {
+            if (is.integer(x) && grafico == "fa") {
+              graf = gstep(tf, frec)
+            }
           }
-      }
-      }
-    }
-
-    if (clipboard){
-              if (Sys.info()["sysname"] == "Linux") {
-                tf|>
-                  write.table(pipe("xclip -selection clipboard"), sep = "\t", row.names = FALSE)
-        } else {
-          tf|>
-            write.table("clipboard", row.names = FALSE, dec = ",", sep = "\t")
+        }
       }
 
-
+      return(list(
+        `Tabla de frecuencias` = tf,
+        Grafico = graf,
+        `Tipo de variable` = tipo,
+        n0 = n0,
+        n = n,
+        Omitidos = omitidos,
+        Infinitos = infinitos
+      ))
     }
   }
 }
